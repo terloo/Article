@@ -1,0 +1,107 @@
+# k8s资源
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-pod
+      type: backend
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: nginx-pod
+        type: backend
+        version: v1
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+          name: nginx-port
+          protocol: TCP
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tomcat-deploy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tomcat-pod
+      type: backend
+      version: v2
+  template:
+    metadata:
+      labels:
+        app: tomcat-pod
+        type: backend
+        version: v2
+    spec:
+      containers:
+      - name: tomcat
+        image: tomcat
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+          name: tomcat
+          protocol: TCP
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: curl-cli
+spec:
+  containers:
+  - name: curl
+    image: curlimages/curl
+    imagePullPolicy: IfNotPresent
+    command: ["sh","-c","while true;do env | grep app; sleep 3 ;done;"]
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-svc
+spec:
+  selector:
+    type: backend
+  ports:
+  - port: 80
+    name: port80
+  - port: 8080
+    name: port8080
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-svc
+spec:
+  selector:
+    app: nginx-pod
+  ports:
+  - port: 80
+    targetPort: 80
+    name: nginx
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tomcat-svc
+spec:
+  selector:
+    app: tomcat-pod
+  ports:
+  - port: 8080
+    targetPort: 8080
+    name: tomcat

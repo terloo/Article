@@ -1,0 +1,10 @@
+# Pod更新信息流转
+三来源产生改动，对应的Source会将改动后的所有Pod包装成操作类型为kubelet/types.PodOperation.SET的PodUpdate全量推送到PodConfig
+
+PodConfig会计算更新并将更新包装成操作类型为kubelet/types.PodOperation#SET、ADD、UPDATE、DELETE、REMOVE、RECONCILE的PodUpdate推送到kubelet主循环
+
+kubelet主循环根据操作类型调用SyncHandler接口中相应的方法进行处理
+
+根据SyncHandler中的方法将pod包装成UpdatePodOptions，类型为kubelet/types.SyncPodType#SyncPodSync、SyncPodUpdate、SyncPodCreate、SyncPodKill交由PodWorkers进行处理
+
+PodWorkers根据UpdatePodOptions，为每一个Pod都启动一个gorontine来调用kubelet进行对应的操作

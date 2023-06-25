@@ -1,0 +1,21 @@
+Docker镜像命令
+
+docker images 
+列出本地所有镜像
+	-a			列出本地所有镜像（包含中间镜像）
+	-q			静默模式，只显示编号
+	--digests	显示镜像摘要
+	--no-trunc	显示完整信息（不截取）
+
+docker search 镜像名
+查找某个镜像
+	-s [int]	点赞数不小于[int]
+	--no-trunc	显示完整信息（不截取）
+	--automated	只列出自动构建的镜像
+
+dokcer pull 镜像名[:tag]
+下载镜像
+
+docker rmi 镜像名1[:tag](或ID) 镜像名2[:tag]（或ID）...
+	-f 强制删除（忽略正在运行的容器）
+	docker rmi -f $(docker images -qa)	删除所有镜像

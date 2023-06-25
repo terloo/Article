@@ -1,0 +1,24 @@
+数据卷容器内添加
+
+docker run -it -v /宿主机绝对路径:/容器内目录[permission] 镜像名
+	权限：
+		:ro		readonly	只读（这里的只读指的是容器内的数据没法在容器内修改，只能在宿主机对其操作）
+
+
+-----------------------------------数据卷-----------------------------------
+用dockerfile来指定数据卷
+在dockerfile中时通Volume指令来给镜像添加一个或多个数据卷
+
+文件构建：
+# volume test
+FROM centos																		# 继承其他的镜像
+VOLUME ["/dataVolume1", "/dataVolume2", "/dataVolume3", "<其他绝对路径>"]			# 指定数据卷（这里因为移植性的原因，不允许在此指定宿主机目录）
+CMD echo "------finished------"
+CMD /bin/bash																	# 执行指定的命令
+
+镜像build
+docker build -f <dockerfile文件路径> -t <新的镜像名> .
+
+容器间传递解析
+docker run -it --name <新容器> --volumes-from <被继承的容器> <镜像>
+

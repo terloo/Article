@@ -1,0 +1,12 @@
+docker network create my-net // 创建用户自定义的桥接网络
+docker network rm my-net // 删除用户自定义的桥接网络
+
+// 将nginx容器连接到my-net网络，将容器中的80端口发布到docker主机上的端口8080，因此外部客户端可以访问该端口。连接到my-net网络的任何其他容器都可以访问到my-nginx容器上的所有端口，反之亦然。
+docker create --name my-nginx --network my-net --publish 8080:80 nginx:latest
+
+
+// 将已经在运行的my-nginx容器连接到已存在的my-net网络
+docker network connect my-net my-nginx
+
+// 断开正在运行的容器与用户定义的桥的连接。将my-nginx容器与my-net网络断开连接
+docker network disconnect my-net my-nginx

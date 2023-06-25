@@ -1,0 +1,95 @@
+#! /bin/bash
+log=/root/log/cni.log
+config=`cat /dev/stdin`
+
+case $CNI_COMMAND in
+ADD)
+	echo >> $log
+	echo "COMMAND: $CNI_COMMAND" >> $log
+	echo "IFNAME: $CNI_IFNAME" >> $log
+	echo "CONTAINERID: $CNI_CONTAINERID" >> $log
+	echo "NETNS: $CNI_NETNS" >> $log
+
+	podcidr=$(echo $config | jq -r ".podcidr")
+	podcidr_gw=$(echo $podcidr | sed "s:0/24:1:g")
+	# brctl addbr cni0 # 如果网桥不存在，创建一个名为cni0的网桥
+	ip link add cni0 type bridge
+	ip link set cni0 up
+	ip addr add "${podcidr_gw}/24" dev cni0  # 给网桥分配一个ip地址范围
+
+
+	# 计算一个不重复的n，用于veth的名称和Pod的ip
+	if [ -f /tmp/last_allocated_ip ]; then
+	  n=`cat /tmp/last_allocated_ip`
+	else
+	  n=1
+	fi
+	n=$(($n+1))
+	echo $n > /tmp/last_allocated_ip
+
+	# 生成Pod的ip
+	ip=$(echo $podcidr | sed "s:0/24:$n:g")
+	host_ifname="veth$n" # 给Pod分配的pair的名字
+	ip link add $CNI_IFNAME type veth peer name $host_ifname # 生成一对虚拟网卡，一端为kubelet传入的CNI网卡名(一般为eth0)，一段为不重复的host_ifname
+	ip link set $host_ifname up # 启动host_ifname网卡
+
+	mkdir -p /var/run/netns/
+	# 将host_ifname网卡连接到虚拟网桥上
+	ip link set $host_ifname master cni0
+	# 将容器的网络命名空间link到linux网络命名空间管理目录下，方便使用ip工具管理
+	ln -sfT $CNI_NETNS /var/run/netns/$CNI_CONTAINERID
+	# 移动eth0到容器网络命名空间中
+	ip link set $CNI_IFNAME netns $CNI_CONTAINERID
+
+	# 给容器中的网络配置网卡ip，路由规则
+	ip netns exec $CNI_CONTAINERID ip link set $CNI_IFNAME up
+	ip netns exec $CNI_CONTAINERID ip addr add $ip/24 dev $CNI_IFNAME
+	ip netns exec $CNI_CONTAINERID ip route add default via $podcidr_gw dev $CNI_IFNAME
+
+	mac=$(ip netns exec $CNI_CONTAINERID ip link show eth0 | awk '/ether/ {print $2}')
+	address="${ip}/24"
+	output_template='
+{
+  "cniVersion": "0.3.1",
+  "interfaces": [
+      {
+          "name": "%s",
+          "mac": "%s",
+          "sandbox": "%s" 
+      }
+  ],
+  "ips": [
+      {
+          "version": "4",
+          "address": "%s",
+          "gateway": "%s",
+          "interface": 0 
+      }
+  ]
+}'
+
+	output=$(printf "${output_template}" $CNI_IFNAME $mac $CNI_NETNS $address $podcidr_gw)
+	echo $output >> $log
+	echo "$output"
+;;
+
+DEL)
+	rm -rf /var/run/netns/$CNI_CONTAINERID
+;;
+
+GET)
+;;
+
+VERSION)
+echo '{
+  "cniVersion": "0.3.1",
+  "supportedVersions": ["0.3.0", "0.3.1", "0.4.0"]
+}'
+;;
+
+*)
+  echo "Unknown cni command $CNI_COMMAND"
+  exit 1
+;;
+
+esac
