@@ -1,5 +1,5 @@
 # AD-Hoc
-AD-Hoc是ansible指定各种模块的组件
+AD-Hoc是ansible适用与使用ansible模块执行单条命令的场景
 
 ## ansible模块
 | 模块    | 解释                                  | 备注                    |
