@@ -20,7 +20,7 @@ ansible是一个对多态服务器批量执行命令或操作的工具
 | ---------------------- | ----------------------- | ------------------------------ |
 | --version              | 查看版本                |                                |
 | -m module              | 指定模块，默认为command |                                |
-| -a args                | 模块参数                | 格式 options1=xxx,options2=yyy |
+| -a args                | 模块参数                | 格式 `'options1=xxx options2=yyy'` |
 | -v,-vv,-vvv            | 查看详细执行过程        |                                |
 | --list-hosts,--list    | 显示指定分组的主机清单  |                                |
 | -k,--ask-pass          | 通过密码验证连接ssh     | 需要所有主机清单的密码一致     |
