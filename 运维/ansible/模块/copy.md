@@ -2,8 +2,9 @@
 复制ansible主机文件/目录到远程主机
 
 1. content：直接将参数值新建为一个文件
-2. backup：如果文件存在，先进行配置
+2. backup：如果文件存在，先进行备份
 3. dest：目标文件目录
+4. remote_src：yes时将src视作远程主机的目录而不是ansible主机
 
 ```yaml
 - name: Copy files to remote locations
