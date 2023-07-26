@@ -1,0 +1,3 @@
+- name: config file
+  copy: src=httpd.conf dest=/etc/httpd/conf backup=yes  # 复制文件  文件在files目录中
+  notify: restart  # 触发restart的handler，yaml文件在handers目录中

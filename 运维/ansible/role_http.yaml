@@ -1,0 +1,5 @@
+# 调用roles的playbook文件
+- hosts: all
+  remote_user: root
+  roles:
+  - httpd
