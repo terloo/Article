@@ -1,4 +1,5 @@
 # sed
+sed更适合对文本进行编辑
 
 ## 命令
 1. sed：stream editer 流编辑器
