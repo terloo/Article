@@ -1,64 +1,5 @@
-# Scheduler
-Scheduler是kube-scheduler的主体结构体，它会监控所有未被调度的Pod，寻找合适的节点，将Pod与节点进行绑定
-
-## 结构体
-```go
-// pkg/scheduler/scheduler.go
-// Scheduler watches for new unscheduled pods. It attempts to find
-// nodes that they fit on and writes bindings back to the api server.
-type Scheduler struct {
-	// It is expected that changes made via SchedulerCache will be observed
-	// by NodeLister and Algorithm.
-	SchedulerCache internalcache.Cache
-
-	Algorithm ScheduleAlgorithm
-
-	Extenders []framework.Extender
-
-	// NextPod should be a function that blocks until the next pod
-	// is available. We don't use a channel for this, because scheduling
-	// a pod may take some amount of time and we don't want pods to get
-	// stale while they sit in a channel.
-	NextPod func() *framework.QueuedPodInfo
-
-	// Error is called if there is an error. It is passed the pod in
-	// question, and the error
-	Error func(*framework.QueuedPodInfo, error)
-
-	// Close this to shut down the scheduler.
-	StopEverything <-chan struct{}
-
-	// SchedulingQueue holds pods to be scheduled
-	SchedulingQueue internalqueue.SchedulingQueue
-
-	// Profiles are the scheduling profiles.
-	Profiles profile.Map
-
-	client clientset.Interface
-}
-```
-1. SchedulerCache：scheduler主要的缓存结构，缓存了所有的Node和带调度的Pod
-2. Algorithm：scheduler主要的调度算法
-3. Extenders：调度扩展，用于调度非k8s直接管理的资源
-4. NextPod：一个用于获取下一个待调度Pod的函数，如果没有下一个等待调度的Pod，该函数会阻塞
-5. Error：一个用于处理调度时错误的函数
-6. StopEverything：接收停止信号的channel
-7. SchedulingQueue：待调度的Pod队列
-8. Profiles：schedulerName到schedulerFramework的映射。默认情况下只有一个名为default-scheduler的schedulerFramework
-9. client：clientSet
-
-## Run
-启动Scheduler
-```go
-// pkg/scheduler/scheduler.go
-func (sched *Scheduler) Run(ctx context.Context) {
-	// 启动Queue
-	sched.SchedulingQueue.Run()
-	// 阻塞并一直执行schdulerOne方法知道context退出
-	wait.UntilWithContext(ctx, sched.scheduleOne, 0)
-	sched.SchedulingQueue.Close()
-}
-```
+# schedulerOne
+schedulerOne是Scheduler中执行一次调度的方法，Scheduler在运行之后会一直执行该方法
 
 ## scheduleOne
 进行一次调度
@@ -97,8 +38,10 @@ func (sched *Scheduler) scheduleOne(ctx context.Context) {
 
 	schedulingCycleCtx, cancel := context.WithCancel(ctx)
 	defer cancel()
+    // 传入调度框架和待调度的pod，对pod进行调度流程
 	scheduleResult, err := sched.Algorithm.Schedule(schedulingCycleCtx, sched.Extenders, fwk, state, pod)
 	if err != nil {
+        // 如果获取调度节点失败，进行处理
 		// Schedule() may have failed because the pod would not fit on any host, so we try to
 		// preempt, with the expectation that the next time the pod is tried for scheduling it
 		// will fit due to the preemption. It is also possible that a different pod will schedule
@@ -155,6 +98,7 @@ func (sched *Scheduler) scheduleOne(ctx context.Context) {
 		return
 	}
 
+    // 给Pod预留资源
 	// Run the Reserve method of reserve plugins.
 	if sts := fwk.RunReservePluginsReserve(schedulingCycleCtx, state, assumedPod, scheduleResult.SuggestedHost); !sts.IsSuccess() {
 		metrics.PodScheduleError(fwk.ProfileName(), metrics.SinceInSeconds(start))
@@ -194,6 +138,7 @@ func (sched *Scheduler) scheduleOne(ctx context.Context) {
 		podsToActivate.Map = make(map[string]*v1.Pod)
 	}
 
+    // 异步运行保定流程
 	// bind the pod to its host asynchronously (we can do this b/c of the assumption step above).
 	go func() {
 		bindingCycleCtx, cancel := context.WithCancel(ctx)
