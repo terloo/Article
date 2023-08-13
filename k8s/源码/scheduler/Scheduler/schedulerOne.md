@@ -138,7 +138,7 @@ func (sched *Scheduler) scheduleOne(ctx context.Context) {
 		podsToActivate.Map = make(map[string]*v1.Pod)
 	}
 
-    // 异步运行保定流程
+    // 异步运行绑定流程
 	// bind the pod to its host asynchronously (we can do this b/c of the assumption step above).
 	go func() {
 		bindingCycleCtx, cancel := context.WithCancel(ctx)

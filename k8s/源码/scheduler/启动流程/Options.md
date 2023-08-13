@@ -3,7 +3,7 @@ Scheduler使用的选项结构体，
 
 ## 结构体
 ```go
-// cmd/kube-schduler/app/options/options.go
+// cmd/kube-scheduler/app/options/options.go
 type Options struct {
 	// The default values.
 	ComponentConfig *kubeschedulerconfig.KubeSchedulerConfiguration

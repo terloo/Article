@@ -1,5 +1,5 @@
 # Framework
-Framework是Scheduler中用于管理和在指定钩子点调用Plugin的接口
+Framework是Scheduler中用于管理所有调度Plugin的接口，Scheduler对象可以有多个Framework，但默认情况下只有`default-scheduler`  
 
 ## 接口
 ```go
@@ -149,7 +149,7 @@ type PluginsRunner interface {
 	RunPreFilterExtensionRemovePod(ctx context.Context, state *CycleState, podToSchedule *v1.Pod, podInfoToRemove *PodInfo, nodeInfo *NodeInfo) *Status
 }
 
-// 
+// PodNominator用于暂存Pod，等待被抢占的Pod优雅推出后，再将Pod调度到对应的节点
 type PodNominator interface {
 	// AddNominatedPod adds the given pod to the nominator or
 	// updates it if it already exists.

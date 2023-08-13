@@ -1,0 +1,7 @@
+# Queue
+Scheduler在Watch到尚未进行调度的Pod时，会将Pod暂存到队列中用于调度。Scheduler在整个调度流程中一共使用了三个队列。
+
+# 三队列
+1. ActiveQ：保存已经可以开始进行调度的Pod。调度失败的Pod会被放入UnschedulablePods队列中
+2. UnschedulablePods：保存无法进行调度的Pod(没有选取到合适的Node)。每30s进行一次判断，决定是否将其中的Pod放入ActiveQ或者BackoffQ
+3. BackoffQ：保存正在等待重新调度的Pod，等待时间为指数退让时间。每1s判断一次是否等待完成，将Pod放入ActiveQ中

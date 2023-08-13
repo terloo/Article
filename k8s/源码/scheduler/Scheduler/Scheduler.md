@@ -1,5 +1,6 @@
 # Scheduler
-Scheduler是kube-scheduler的主体结构体，它会监控所有未被调度的Pod，寻找合适的节点，将Pod与节点进行绑定
+Scheduler是kube-scheduler的主体结构体，它会监控所有未被调度的Pod，寻找合适的节点，将Pod与节点进行绑定。
+Scheduler的实例化遵循Options->Config->Instance的流程
 
 ## 结构体
 ```go
@@ -52,18 +53,42 @@ type Scheduler struct {
 ```go
 // pkg/scheduler/scheduler.go
 func (sched *Scheduler) Run(ctx context.Context) {
-	// 启动Queue
+	// 启动Queue，作为队列的生产者
 	sched.SchedulingQueue.Run()
-	// 阻塞并一直执行schdulerOne方法知道context退出
+	// 阻塞并一直执行schedulerOne方法直到context退出，作为队列的消费者
 	wait.UntilWithContext(ctx, sched.scheduleOne, 0)
+	// 停止消费后同样停止生产
 	sched.SchedulingQueue.Close()
 }
 ```
 
 ## 构造函数
-通过若干Option函数，构造Scheduler
+通过若干SchedulerOptions函数，构造Scheduler。opts是用于配置SchedulerOptions的函数
 ```go
 // pkg/scheduler/scheduler.go
+
+// Option configures a Scheduler
+type Option func(*schedulerOptions)
+
+// 默认的SchedulerOptions，Options参数在此基础上进行修改
+var defaultSchedulerOptions = schedulerOptions{
+	// 默认为0，0表示使用内置算法来得出该百分比
+	percentageOfNodesToScore: schedulerapi.DefaultPercentageOfNodesToScore,
+	// 1s
+	podInitialBackoffSeconds: int64(internalqueue.DefaultPodInitialBackoffDuration.Seconds()),
+	// 10s
+	podMaxBackoffSeconds:     int64(internalqueue.DefaultPodMaxBackoffDuration.Seconds()),
+	// 16
+	parallelism:              int32(parallelize.DefaultParallelism),
+	// 由于测试的原因，不在此处初始化Profile，而是通过Option函数来赋值
+	// Ideally we would statically set the default profile here, but we can't because
+	// creating the default profile may require testing feature gates, which may get
+	// set dynamically in tests. Therefore, we delay creating it until New is actually
+	// invoked.
+	applyDefaultProfile: true,
+}
+
+// Options->Config->Instance
 func New(client clientset.Interface,
 	informerFactory informers.SharedInformerFactory,
 	dynInformerFactory dynamicinformer.DynamicSharedInformerFactory,
@@ -92,8 +117,10 @@ func New(client clientset.Interface,
 		}
 		options.profiles = cfg.Profiles
 	}
+	// 实例化缓存
 	schedulerCache := internalcache.New(durationToExpireAssumedPod, stopEverything)
 
+	// 合并内部默认插件和外部插件
 	registry := frameworkplugins.NewInTreeRegistry()
 	if err := registry.Merge(options.frameworkOutOfTreeRegistry); err != nil {
 		return nil, err
@@ -138,4 +165,31 @@ func New(client clientset.Interface,
 
 	return sched, nil
 }
+```
+
+## 对初始化函数的调用
+```go
+// cmd/kube-scheduler/app/server.go
+sched, err := scheduler.New(cc.Client,
+	cc.InformerFactory,
+	cc.DynInformerFactory,
+	recorderFactory,
+	ctx.Done(),
+	// 给SchedulerOptions赋值KubeSchedulerConfiguration的api版本
+	scheduler.WithComponentConfigVersion(cc.ComponentConfig.TypeMeta.APIVersion),
+	scheduler.WithKubeConfig(cc.KubeConfig),
+	// 给SchedulerOptions赋值Profiles
+	scheduler.WithProfiles(cc.ComponentConfig.Profiles...),
+	scheduler.WithPercentageOfNodesToScore(cc.ComponentConfig.PercentageOfNodesToScore),
+	scheduler.WithFrameworkOutOfTreeRegistry(outOfTreeRegistry),
+	scheduler.WithPodMaxBackoffSeconds(cc.ComponentConfig.PodMaxBackoffSeconds),
+	scheduler.WithPodInitialBackoffSeconds(cc.ComponentConfig.PodInitialBackoffSeconds),
+	scheduler.WithExtenders(cc.ComponentConfig.Extenders...),
+	scheduler.WithParallelism(cc.ComponentConfig.Parallelism),
+	// 用于打印完成初始化后的Profile
+	scheduler.WithBuildFrameworkCapturer(func(profile kubeschedulerconfig.KubeSchedulerProfile) {
+		// Profiles are processed during Framework instantiation to set default plugins and configurations. Capturing them for logging
+		completedProfiles = append(completedProfiles, profile)
+	}),
+)
 ```
