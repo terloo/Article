@@ -28,7 +28,7 @@ CGroup是一种用文件系统来进行组织的linux进程资源控制配置信
 
 ## CPU子系统
 1. cpu.cfs_period_us：配置时间长度周期，单位为us。默认情况下为100000(0.1s)
-2. cpu.cfs_quota_us：用来配置当前CGroup在cfs_period_us时间中最多能使用的CPU时间数，单位为us。默认为-1，代表不控制。cfs_quota_us/cfs_period_us代表控制组能使用的cpu的核数
+2. cpu.cfs_quota_us：用来配置当前CGroup在cfs_period_us时间中最多能使用的CPU时间数，单位为us。默认为-1，代表不控制。**cfs_quota_us/cfs_period_us代表控制组能使用的cpu的核数**
 3. cpu.shares：控制组在CPU资源不足时能获得CPU使用时间的相对值，默认为1024。由于cpu资源是可以压缩的，这个值会在cpu饱和时决定对控制组所使用的cpu进行压缩的比例
 
 ## CPU acct系统
@@ -40,3 +40,8 @@ CGroup是一种用文件系统来进行组织的linux进程资源控制配置信
 2. memory.soft_limit_in_bytes：该设置并不会阻止控制组使用内存，只是在内存超过限制时，优先回收超额的内存
 3. memory.usage_in_bytes：该控制组当前使用的内存
 4. memory.max_usage_in_bytes：该控制组最大使用的内存
+
+## 在k8s中的应用
+1. limit.cpu：使用cpu.cfs_period_us和cpu.cfs_quota_us进行实现
+2. request.cpu：使用cpu.shares来实现cpu相对使用时间的功能
+3. limit.memory：使用memory.soft_limit_in_bytes进行实现

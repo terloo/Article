@@ -81,6 +81,7 @@ func (sched *Scheduler) scheduleOne(ctx context.Context) {
 		return
 	}
 	metrics.SchedulingAlgorithmLatency.Observe(metrics.SinceInSeconds(start))
+	// 调用缓存的方法，使缓存认为Pod已经被绑定(即使尚未运行Bind步骤)，使得Scheduler可以直接进行下一次Pod调度而无需等待Bind流程完成
 	// Tell the cache to assume that a pod now is running on a given node, even though it hasn't been bound yet.
 	// This allows us to keep scheduling without waiting on binding to occur.
 	assumedPodInfo := podInfo.DeepCopy()
