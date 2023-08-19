@@ -20,9 +20,9 @@ docker run -it
 1. 安装nvidia驱动
    1. `sudo yum install -y gcc kernel-devel-$(uname -r)`
    2. `sudo /bin/sh ./NVIDIA-Linux-x86_64*.run`
-2. 安装NVIDIA docker2
+2. 安装NVIDIA docker2，Nvidia会替换掉docker默认的runc
    1. `sudo yum install nvidia-docker2`
    2. `sudo pkill -SIGHUP dockerd`
-3. 部署Nvidia Device Plugin
+3. 部署Nvidia Device Plugin，DevicePlugin会以DaemonSet的形式存在于k8s中
    1. `kubectl create -f nvidia-device-plugin.yaml`
 
