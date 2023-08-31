@@ -5,6 +5,7 @@ DelayingQueue拥有`AddAfter(item interface{}, duration time.Duration)`方法，
 ```go
 // vendor/k8s.io/client-go/util/workqueue/delaying_queue.go
 type DelayingInterface interface {
+	// FIFO的基本接口
 	Interface
 	// AddAfter adds an item to the workqueue after the indicated duration has passed
     // 在指定时间之后再将元素添加到队列

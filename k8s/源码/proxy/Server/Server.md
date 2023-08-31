@@ -74,6 +74,7 @@ func newProxyServer(
 	// Create a iptables utils.
 	execer := exec.New()
 
+	// 判断能否使用ipvs模型
 	kernelHandler = ipvs.NewLinuxKernelHandler()
 	ipsetInterface = utilipset.New(execer)
 	canUseIPVS, err := ipvs.CanUseIPVSProxier(kernelHandler, ipsetInterface, config.IPVS.Scheduler)
@@ -85,6 +86,7 @@ func newProxyServer(
 		ipvsInterface = utilipvs.New()
 	}
 
+	// 如果执行清理模型，则创建一个较为简单的ProxyServer
 	// We omit creation of pretty much everything if we run in cleanup mode
 	if cleanupAndExit {
 		return &ProxyServer{
@@ -98,6 +100,7 @@ func newProxyServer(
 		metrics.SetShowHidden()
 	}
 
+	// 获取宿主机hostname
 	hostname, err := utilnode.GetHostname(config.HostnameOverride)
 	if err != nil {
 		return nil, err
