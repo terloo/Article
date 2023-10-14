@@ -1,8 +1,10 @@
 # BGPPeer
-BGPPeer是calico中用于申明一个或多个BGP对等体的CRD，可以指定一个多个或所有现存node来连接该对等体
+BGPPeer是calico中用于申明一个或多个BGP对等体的CRD，可以指定一个多个或所有现存node来连接该对等体。  
+mesh模式下，所有的Node都会被视为BGPPeer，可以先设置BGPPeer再关闭mesh模式防止网络中断
 
 ## Sample
 ```yaml
+# 申明一个对等体，可以是物理路由器的ip，所有的Node都会对其进行连接
 apiVersion: projectcalico.org/v3
 kind: BGPPeer
 metadata:
@@ -10,6 +12,25 @@ metadata:
 spec:
   peerIP: 192.168.1.1
   asNumber: 63400
+
+---
+# 利用标签选择器，申明多个Node为BGPPeer，在非mesh的情况下，相当于缩小了mesh的范围
+apiVersion: projectcalico.org/v3
+kind: BGPPeer
+metadata:
+  name: some.name
+spec:
+  peerSelector: key == 'value'
+
+---
+# 利用标签选择器，使所有节点都连接route-reflector
+kind: BGPPeer
+apiVersion: projectcalico.org/v3
+metadata:
+  name: some.name
+spec:
+  nodeSelector: all()
+  peerSelector: route-reflector == 'true'
 ```
 
 ## 字段
