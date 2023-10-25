@@ -26,8 +26,8 @@ metadata:
   name: authorization-role
 rules: 
 - apiGroups: [""]  # 资源所属的api组，空字符串代表核心API组
-    resources: ["pods"]  # 以复数的形式展现，可以用["pods/log"]这种形式来表示子资源
-    verbs: ["get", "watch", "list"]
+  resources: ["pods"]  # 以复数的形式展现，可以用["pods/log"]这种形式来表示子资源
+  verbs: ["get", "watch", "list"]
 ```
 > verbs列表：get, list, watch, create, update, patch, delete, exec
 
@@ -42,8 +42,8 @@ metadata:
   name: authorization-clusterrole
 rules:
 - apiGroups: [""]
-    resources: ["nodes"]
-    verbs: ["get", "watch", "list"]
+  resources: ["nodes"]
+  verbs: ["get", "watch", "list"]
 ```
 
 ## RoleBinding
@@ -57,9 +57,9 @@ metadata:
   name: role-binding
   namespace: default
 subjects:
-  - kind: User
-    name: jane
-    apiGruop: rbac.authorization.k8s.io  # 可以省略，User和Group时默认为rbac组，ac时默认为核心组
+- kind: User
+  name: jane
+  apiGruop: rbac.authorization.k8s.io  # 可以省略，User和Group时默认为rbac组，ac时默认为核心组
 roleRef:
   kind: Role
   name: authorization-role

@@ -1,5 +1,5 @@
-# code-generater
-code-generater是k8s提供的一系列工具，用于对定义好的k8s资源对象生成
+# code-generator
+code-generator是k8s提供的一系列工具，用于对定义好的k8s资源对象生成
 1. client-gen：clientSet客户端
 2. lister-gen：lister客户端
 3. informer-gen：informer客户端
@@ -12,7 +12,7 @@ code-generater是k8s提供的一系列工具，用于对定义好的k8s资源对
    1. output-package：输出文件的包路径，如`github.com/example/project/pkg/generated`
    2. apis-package：外部版本api的包路径，如`github.com/example/project/pkg/apis`
    3. groups-versions：资源的Group和Version，如`groupA:v1,v2 groupB:v1 groupC:v2`
-   4. 工具的命令行参数：generater系列工具的参数
+   4. 工具的命令行参数：generator系列工具的参数
       1. 需要指定协议模板文件`-h header.txt`，header.txt可以空文件，也可以是开源协议信息
       2. 需要指定生成文件的基础路径`-o ./`(默认值是./)
 

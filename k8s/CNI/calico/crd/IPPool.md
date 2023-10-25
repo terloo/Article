@@ -1,9 +1,10 @@
 # IPPool
 
 ## 概念
-IPPool是calico中对Pod使用ip地址集合的抽象定义，IPPool会被进一步划分为block，集群中每个节点可以有一个或者多个block与其关联，需要确保每个Node至少被一个IPPool所覆盖  
-当集群中的节点或者Pod数量增加或减少时，calico会自动创建或回收Block  
-calico也支持手动分配与节点不相关的block给节点上的Pod
+1. IPPool是calico中对Pod使用ip地址集合的抽象定义，IPPool会被进一步划分为block，集群中每个节点可以有一个或者多个block与其关联，需要确保每个Node至少被一个IPPool所覆盖
+2. 当集群中的节点或者Pod数量增加或减少时，calico会自动创建或回收Block，当节点当前被分配的block使用完后，才会被分配新的block
+3. calico也支持手动分配与节点不相关的block给节点上的Pod
+4. 在进行BGP通告时，节点只会通告被分配的block的地址端
 
 ## 自动划分IPPool
 安装calico后，calico会将k8s的pod cidr配置为一个默认IPPool进行使用，并将该cidr划分为子块分配给一个特定的Node。默认情况下，每个子块拥有64个ip地址(/26)
