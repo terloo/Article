@@ -51,3 +51,7 @@ func gen() <-chan int {
     return out
 }
 ```
+
+## Fanout Fanin
+
+## Cancellation
