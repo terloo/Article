@@ -7,7 +7,7 @@
 3. Http Service：oauth2服务提供商
 4. Authorization Server：授权服务器，即服务提供商处理授权相关逻辑的服务器
 5. Resource Server：资源服务器，保存了用户相关资源
-6. User Agent：用户代理，比如流浪其
+6. User Agent：用户代理，比如浏览器
 
 ## 授权模式
 1. authorization_code：授权码模式，更为严格
