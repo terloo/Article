@@ -9,7 +9,10 @@ PUT /索引库名称
         "properties": {
             "字段名1": {
                 "type": "text",
-                "analyzer": "ik_smart"
+                // 创建索引时使用的分词器
+                "analyzer": "ik_smart",
+                // 搜索时使用的分词器
+                "search_analyzer": ""
             },
             "字段名2": {
                 "type": "keyword",
