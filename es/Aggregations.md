@@ -43,8 +43,8 @@
     // 普通query的返回
     "hits" : {
         "total" : {
-        "value" : 500,
-        "relation" : "eq"
+            "value" : 500,
+            "relation" : "eq"
         },
         "max_score" : null,
         "hits" : [ ]
@@ -97,7 +97,9 @@ Metrics可以进行嵌套(子聚合)
             },
             "aggs": {  // 子聚合
                 "子聚合名": {
-                    "field": "字段名"
+                    "stats": {
+                        "field": "字段名"
+                    }
                 }
             }
         }
