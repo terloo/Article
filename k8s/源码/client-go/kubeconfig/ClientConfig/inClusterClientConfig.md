@@ -1,5 +1,5 @@
 # inClusterClientConfig
-当程序运行在集群中时，可以使用集群向Pod中注入的信息来生成restclient.Config
+当程序运行在Pod中时，可以使用集群向Pod中注入的信息来生成restclient.Config
 
 ## 实现类
 ```go

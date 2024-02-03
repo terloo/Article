@@ -1,8 +1,10 @@
 # kubeconfig
-kubeconfig是k8s-client的客户端配置文件，可以由此配置文件生成restclient.Config  
-k8s提供了`vendor/k8s.io/client-go/tools/clientcmd/client_config.ClientConfig`作为从kubeconfig生成restclient.Config的接口
-1. DirectClientConfig：基础实现，实现了由kubeconfig生成restclient.Config的基础逻辑
-2. DeferredLoadingClientConfig：延迟加载实现，在调用ClientConfig()方法时，才会加载
+kubeconfig是k8s-client的客户端配置文件，可以由此配置文件生成客户端**配置**对象`restclient.Config`
+
+## 接口
+kubeconfig流程主要有两个接口参与：
+1. `ConfigAccess`：用于读取所有来源的文件，并将其序列化为`clientcmdapi.Config`
+2. `ClientConfig`：用于从`clientcmdapi.Config`生成`restclient.Config`，或者在内部调用`ConfigAccess`直接从kubeconfig文件生成`restclient.Config`
 
 ## 工具函数
 ```go
@@ -11,6 +13,7 @@ k8s提供了`vendor/k8s.io/client-go/tools/clientcmd/client_config.ClientConfig`
 func BuildConfigFromFlags(masterUrl, kubeconfigPath string) (*restclient.Config, error) {
 	if kubeconfigPath == "" && masterUrl == "" {
 		klog.Warning("Neither --kubeconfig nor --master was specified.  Using the inClusterConfig.  This might not work.")
+		// 如果都不指定，假定进程运行在Pod中
 		kubeconfig, err := restclient.InClusterConfig()
 		if err == nil {
 			return kubeconfig, nil

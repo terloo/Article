@@ -108,7 +108,7 @@ func (config *DeferredLoadingClientConfig) ClientConfig() (*restclient.Config, e
 	}
 
 	// check for in-cluster configuration and use it
-	// 检查是否再集群中，如果在集群中，使用集群Pod中的配置
+	// 检查是否在集群中，如果在集群中，使用集群Pod中的配置
 	if config.icc.Possible() {
 		klog.V(4).Infof("Using in-cluster configuration")
 		return config.icc.ClientConfig()

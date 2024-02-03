@@ -1,5 +1,5 @@
 # DirectClientConfig
-实现了由kubeconfig生成restclient.Config的基础逻辑
+实现了由clientcmdapi.Config生成restclient.Config的基础逻辑
 
 ## 结构体
 ```go
@@ -42,7 +42,7 @@ func NewInteractiveClientConfig(config clientcmdapi.Config, contextName string, 
 ```
 
 ## ClientConfig
-由kubeconfig生成restclient.Config的基础逻辑
+由clientcmdapi.Config生成restclient.Config的基础逻辑
 ```go
 // k8s.io/client-go/tools/clientcmd/client_config.go
 func (config *DirectClientConfig) ClientConfig() (*restclient.Config, error) {

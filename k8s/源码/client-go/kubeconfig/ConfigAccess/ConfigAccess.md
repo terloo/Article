@@ -1,9 +1,10 @@
 # ConfigAccess
-ConfigAccess是一个用于获取kubeconfig文件相关信息的接口
+ConfigAccess可以从多个来源获取kubeconfig信息，并将其按一定的优先级顺序合并，然后序列化为clientcmdapi.Config对象
 
 ## 实现
-1. ClientConfigLoadingRules：实现了ClientConfigLoader接口，合并不同的kubeconfig文件。
+1. ClientConfigLoadingRules：实现了ClientConfigLoader接口，合并不同的kubeconfig文件
 2. PathOptions：kubelet中用于绑定命令行选项的结构体
+3. ClientConfigGetter：适配实现，将获取`clientcmdapi.Config`的函数适配为实现类
 
 ## ConfigAccess
 ```go
