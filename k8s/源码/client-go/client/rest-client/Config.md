@@ -195,7 +195,7 @@ type TLSClientConfig struct {
 ```go
 // k8s.io/client-go/tools/clientcmd/client_config.go
 func BuildConfigFromFlags(masterUrl, kubeconfigPath string) (*restclient.Config, error) {
-    // 如果未指定masterUrl和kubeconfigPath，则认为客户端在Pod中，使用在集群中的配置
+    // 如果未指定masterUrl和kubeconfigPath，则认为客户端在Pod中，使用在Pod中的配置
 	if kubeconfigPath == "" && masterUrl == "" {
 		klog.Warning("Neither --kubeconfig nor --master was specified.  Using the inClusterConfig.  This might not work.")
 		kubeconfig, err := restclient.InClusterConfig()
@@ -363,7 +363,7 @@ func CopyConfig(config *Config) *Config {
 ```
 
 ### AnonymousClientConfig
-拷贝config，但是移除自定义自定义HTTP行为
+拷贝config，但是移除自定义HTTP行为
 ```go
 // k8s.io/client-go/rest/config.go
 func AnonymousClientConfig(config *Config) *Config {

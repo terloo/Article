@@ -1,5 +1,5 @@
 # transport
-transport存放着与`k8s.io/client-go/transport`库向交互的函数
+transport存放着与`k8s.io/client-go/transport`库相交互的函数
 
 ## HTTPClientFor
 通过restclient.Config获取http.Client的函数
