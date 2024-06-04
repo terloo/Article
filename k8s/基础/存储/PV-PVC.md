@@ -111,4 +111,4 @@ spec:
 1. 创建
 2. pending：没有PV与其绑定时
 3. bound：与PV进行绑定时
-4. lost：与其绑定的PV被删除时。如果有新PV再次绑定，将会重新进入bound状态
+4. lost：与其绑定的PV被删除时。如果有新PV再次绑定，将会重新进入bound状态，只能绑定与原pv名字一样的新pv
