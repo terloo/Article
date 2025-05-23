@@ -103,7 +103,6 @@ func CreateControllerContext(s *config.CompletedConfig, rootClientBuilder, clien
 		Cloud:                           cloud,
 		LoopMode:                        loopMode,
 		InformersStarted:                make(chan struct{}),
-		// 使用随机的重同步周期，防止api-server瞬时压力过大
 		ResyncPeriod:                    ResyncPeriod(s),
 	}
 	return ctx, nil

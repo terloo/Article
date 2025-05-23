@@ -43,4 +43,4 @@ kubelet默认的读取配置文件的位置`/etc/cni/net.d/10-my-cni-demo.conf`
 ## Pod与外网之间的网络互通
 在每个节点配置Pod到外网的SNAT
 1. 如果是报文源地址是Pod，且不是通过虚拟网桥发出的。进行SNAT  
-   `iptable -A POSTROUTING -t nat -s <该节点的podcidr范围> ! -o <该节点虚拟网桥ip> -j MASQUERADE`
+   `iptables -A POSTROUTING -t nat -s <该节点的podcidr范围> ! -o <该节点虚拟网桥ip> -j MASQUERADE`

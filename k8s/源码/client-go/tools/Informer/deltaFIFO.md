@@ -209,7 +209,8 @@ func (s *sharedIndexInformer) HandleDeltas(obj interface{}) error {
 						}
 					}
 				}
-                // 如果在当前Indexer中能获取到对象，那么说明资源对象产生了更改，并判断是否是同步事件
+                // 如果在当前Indexer中能获取到对象，那么说明资源对象产生了更改，故传播一个更新提醒
+				// 同步事件也视作一次更新提醒
 				s.processor.distribute(updateNotification{oldObj: old, newObj: d.Object}, isSync)
 			} else {
                 // 如果没有，则添加到indexer并分发添加操作
